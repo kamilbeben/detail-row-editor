@@ -1,6 +1,7 @@
 # Vuetable-2 Detail row editor
 Details row editor meant for [Vuetable-2](https://github.com/ratiw/vuetable-2)
-[See in action](https://kamilbeben.github.io/detail-row-editor/dist)
+
+![Example image](http://bezik712.ayz.pl/assets/detail-row-entry-example.gif)
 
 # Usage
 ## Inside template
