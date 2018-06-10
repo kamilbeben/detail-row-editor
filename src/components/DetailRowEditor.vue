@@ -14,12 +14,12 @@
       </div>
     </div>
     <!-- footer -->
-    <div v-if="!options.hideFooter || options.customFooter" class="footer-container">
-      <button @click="onSave" :class="options.buttonClasses" class="ui positive button">Save</button>
-      <button @click="onCancel" :class="options.buttonClasses" class="ui negative button">Cancel</button>
+    <div v-if="options.showFooter || !options.footer" class="footer-container">
+      <button @click="onSave" :class="[options.buttonClasses, options.saveButtonClass]" class="ui positive button">Save</button>
+      <button @click="onCancel" :class="[options.buttonClasses, options.cancelButtonClass]" class="ui negative button">Cancel</button>
     </div>
-    <div v-if="options.customFooter" class="footer-container">
-      <component v-if="options.customFooter" :is="options.customFooter"></component>
+    <div v-if="options.footer" class="footer-container">
+      <component v-if="options.footer" :is="options.footer"></component>
     </div>
   </div>
   </template>
@@ -36,39 +36,69 @@
         type: Number
       }
     },
+    data () {
+      return {
+        fields: [],
+        options: {
+          autoRowUpdateAfterChange: true,
+          autoRowUpdateAfterSave: true,
+          autoHideOnSaveOrCancel: true,
+          onSave: null,
+          onCancel: null,
+          header: null,
+          footer: null,
+          showFooter: true,
+          buttonClasses: '',
+          boldLabel: false,
+          saveButtonClass: '',
+          cancelButtonClass: ''
+        }
+      };
+    },
     methods: {
       onSave () {
-        this.updateRowData();
-        if (!this.options.preventHidingOnSaveCancel) {
-          this.hide();
-        }
         if (this.options.onSave) {
-          this.options.onSave();
+          this.options.saveButtonClass = 'loading';
+          this.options.onSave(this.prepareData())
+            .then(() => {
+              this.autoUpdateRowData();
+              this.hide();
+            });
+        } else {
+          this.hide();
         }
       },
       onCancel () {
         this.revert();
         this.fields = this.prepareFields();
-        if (!this.options.preventHidingOnSaveCancel) {
-          this.hide();
-        }
         if (this.options.onCancel) {
-          this.options.onCancel();
+          this.options.cancelButtonClass = 'loading';
+          this.options.onCancel()
+            .then(this.hide);
+        } else {
+          this.hide();
         }
       },
       onInputChange (field) {
-        if (!this.options.doNotUpdateRowUnlessSaveSelected) {
+        if (this.options.autoRowUpdateAfterChange) {
           this.updateFieldData(field);
+        }
+      },
+      autoUpdateRowData () {
+        if (this.options.autoRowUpdateAfterSave) {
+          this.fields.forEach(this.updateFieldData);
         }
       },
       updateFieldData (field) {
         this.rowData[field.name] = field.value;
       },
-      updateRowData () {
+      prepareData () {
+        const data = JSON.parse(JSON.stringify(this.revertData));
         this.fields
           .forEach((field) => {
-            this.rowData[field.name] = field.value;
-          })
+            data[field.name] = field.value;
+          });
+        return data;
       },
       revert () {
         Object.keys(this.revertData)
@@ -98,18 +128,22 @@
         return fields;
       },
       hide () {
-        this.$parent.hideDetailRow(this.rowIndex + 1);
+        this.options.saveButtonClass = '';
+        this.options.cancelButtonClass = '';
+        if (this.options.autoHideOnSaveOrCancel) {
+          this.$parent.hideDetailRow(this.rowIndex + 1);
+        }
       }
     },
-    data () {
-      return {
-        fields: [],
-        options: {}
-      };
-    },
     mounted () {
-      this.options = this.detailRowOptions || {};
+      // Copy options
+      if (this.detailRowOptions) {
+        Object.keys(this.detailRowOptions)
+          .forEach(key => this.options[key] = this.detailRowOptions[key]); 
+      }
+      // Clone data (for cancel button)
       this.revertData = JSON.parse(JSON.stringify(this.rowData));
+      // Clone fields
       this.fields = this.prepareFields();
     }
   }

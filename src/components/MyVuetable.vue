@@ -19,17 +19,22 @@ import GenderPicker from './GenderPicker'
 
 Vue.component('detail-row', DetailRowEditor);
 
+const onSave = (data) => {
+  return new Promise((resolve) =>  {
+      console.log('onSave.start', data);
+      // Do stuff using data. Unless autoHideOnSaveOrCancel is set to false, the details row will be hidden when this promise is resolved
+      setTimeout(() => {
+        console.log('onSave.end'); 
+        resolve(); 
+      }, 1000);
+    });
+};
+
 // Detal row options
 Vue.prototype.detailRowOptions = {
-  buttonClasses: 'mini', // string | ''
-  boldLabel: false, // boolean | false
-  header: null, // component | null
-  hideFooter: false, // boolean | false
-  customFooter: null, // component | null
-  onSave: null, // function (data) | null
-  onCancel: null, // function (data) | null
-  preventHidingOnSaveCancel: false, // boolean | false
-  doNotUpdateRowUnlessSaveSelected: false
+  buttonClasses: 'mini',
+  onSave: onSave,
+  autoRowUpdateAfterChange: false
 };
 
 export default {
