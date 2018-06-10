@@ -1,6 +1,6 @@
 {
   "name": "detail_row_editor",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "Vuetable extension which can be used to implement expanding editor row with save / cancel options.",
   "author": "Kamil Bęben <kamilbeben94@gmail.com>",
   "private": false,
