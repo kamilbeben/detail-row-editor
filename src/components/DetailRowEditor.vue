@@ -105,7 +105,8 @@
           .forEach(key => this.rowData[key] = this.revertData[key]);
       },
       cloneFields () {
-        return this.$parent.fields
+        console.log('cloneFields', this.detailRowOptions.fields)
+        return this.detailRowOptions.fields
           .filter(field => field.editable)
           .map(field => { 
             return {
