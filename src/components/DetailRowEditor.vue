@@ -106,6 +106,7 @@
       },
       cloneFields () {
         return this.$parent.fields
+          .filter(field => field.editable)
           .map(field => { 
             return {
               name: field.name,

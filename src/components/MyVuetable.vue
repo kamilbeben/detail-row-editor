@@ -51,11 +51,13 @@ export default {
       fields: [{
           key: 1,
           name: 'name',
-          title: 'Name'
+          title: 'Name',
+          editable: true
         }, {
           key: 2,
           name: 'email',
-          title: 'Email'
+          title: 'Email',
+          editable: true
         }, {
           key: 3,
           name: 'nickname',
@@ -65,12 +67,14 @@ export default {
           key: 4,
           name: 'age',
           title: 'Age',
-          type: 'number' // Any valid HTML input type will do (note that no additional attributes will be added, so there is no point in specifying a radio type for example)
+          type: 'number', // Any valid HTML input type will do (note that no additional attributes will be added, so there is no point in specifying a radio type for example)
+          editable: true
         }, {
           key: 5,
           name: 'gender',
           title: 'Gender',
-          customComponent: Vue.component('gender-picker', GenderPicker) // Custom component. See GenderPicker.vue
+          customComponent: Vue.component('gender-picker', GenderPicker), // Custom component. See GenderPicker.vue
+          editable: true
         }]
     }
   },

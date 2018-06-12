@@ -43,6 +43,15 @@ showFooter | boolean | `true` | Whenever footer (buttons) should be hidden
 buttonClasses | String | `''` | Classes which will be added to save / cancel buttons (separated by space)
 boldLabel | boolean | `false` | Whenever field title should be bolded 
 
+# Field properties
+Fields also should have certain properties specified in order to be editable.
+
+Name | Type | Default value | Description
+--- | --- | --- | ---
+editable | boolean | `false` | **Important!** You must set this value to true in order for it to be editable
+type | String | `text` | Any valid HTML input type will do (note that no additional attributes will be added, so there is no point in specifying a radio type for example)
+customComponent | Component | `null` | Custom field component. See example for more detailed informations
+
 # Example code
 ``` bash
 # clone project
