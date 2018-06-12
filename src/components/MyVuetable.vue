@@ -10,6 +10,10 @@
 <script>
 import Vue from 'vue'
 import Vuetable from 'vuetable-2/src/components/Vuetable'
+import VueEvents from 'vue-events'
+
+// Necessary
+Vue.use(VueEvents)
 
 // This is me
 import DetailRowEditor from './DetailRowEditor'

@@ -145,6 +145,12 @@
       this.revertData = JSON.parse(JSON.stringify(this.rowData));
       // Clone fields
       this.fields = this.prepareFields();
+      // Assign event listeners
+      this.$events.$on('detail-row-field-value-changed', (data) => {
+        const field = this.fields.find(field => field.name === data.name);
+        field.value = data.value;
+        this.onInputChange(field);
+      });
     }
   }
   </script>
