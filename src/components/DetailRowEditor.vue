@@ -3,13 +3,12 @@
     <component v-if="options.header" :is="options.header"></component>
     <!-- fields container -->
     <div class="ui two column grid form">
-      <div v-for="field in fields" :key="field.key" class="row field">
+      <div v-for="field in $fields" :key="field.key" class="row field">
         <div class="two wide column flex">
           <label :class="options.boldLabel ? 'bold' : ''"> {{ field.title }} </label>
         </div>
         <div class="fourteen wide column">
-          <component v-if="field.customComponent" :is="field.customComponent" :field="field"></component>
-          <input v-else :type="field.type ? field.type : 'text'" @keyup="onInputChange(field)" v-model="field.value"/>
+          <component :is="field.detailRowComponent" :field="field" :row-index="rowIndex"></component>
         </div>
       </div>
     </div>
@@ -26,6 +25,9 @@
 
   <script>
 
+  import Vue from 'vue'
+  import DefaultField from './DefaultField'
+
   export default {
     props: {
       rowData: {
@@ -38,11 +40,12 @@
     },
     data () {
       return {
-        fields: [],
+        $fields: [],
         options: {
           autoRowUpdateAfterChange: true,
           autoRowUpdateAfterSave: true,
           autoHideOnSaveOrCancel: true,
+          validateData: null,
           onSave: null,
           onCancel: null,
           header: null,
@@ -56,21 +59,31 @@
       };
     },
     methods: {
+      printErrors (errors) {
+        this.options.saveButtonClass = '';
+        errors.forEach(error => {
+          this.$events.fire('detail-row-validation-error', {
+            error: error,
+            rowIndex: this.rowIndex
+          });
+        })
+      },
+      onSaveSuccess () {
+        this.autoUpdateRowData();
+        this.hide();
+      },
       onSave () {
         if (this.options.onSave) {
           this.options.saveButtonClass = 'loading';
           this.options.onSave(this.prepareData())
-            .then(() => {
-              this.autoUpdateRowData();
-              this.hide();
-            });
+            .then(this.onSaveSuccess, this.printErrors)
         } else {
           this.hide();
         }
       },
       onCancel () {
         this.revert();
-        this.fields = this.prepareFields();
+        this.$fields = this.prepareFields();
         if (this.options.onCancel) {
           this.options.cancelButtonClass = 'loading';
           this.options.onCancel()
@@ -86,7 +99,7 @@
       },
       autoUpdateRowData () {
         if (this.options.autoRowUpdateAfterSave) {
-          this.fields.forEach(this.updateFieldData);
+          this.$fields.forEach(this.updateFieldData);
         }
       },
       updateFieldData (field) {
@@ -94,7 +107,7 @@
       },
       prepareData () {
         const data = JSON.parse(JSON.stringify(this.revertData));
-        this.fields
+        this.$fields
           .forEach((field) => {
             data[field.name] = field.value;
           });
@@ -105,7 +118,7 @@
           .forEach(key => this.rowData[key] = this.revertData[key]);
       },
       cloneFields () {
-        return this.$parent.fields
+        return this.detailRowOptions.fields
           .filter(field => field.editable)
           .map(field => { 
             return {
@@ -113,7 +126,7 @@
               title: field.title,
               key: field.key,
               type: field.type,
-              customComponent: field.customComponent
+              detailRowComponent: field.detailRowComponent || Vue.component('default-component', DefaultField)
             }
           });
       },
@@ -132,12 +145,15 @@
         this.options.saveButtonClass = '';
         this.options.cancelButtonClass = '';
         if (this.options.autoHideOnSaveOrCancel) {
-          this.$parent.hideDetailRow(this.rowIndex + 1);
+          this.$events.fire('hide-detail-row', {
+            index: this.rowIndex,
+            data: this.rowData
+          });
         }
       }
     },
     mounted () {
-      // Copy options
+      // Copy options 
       if (this.detailRowOptions) {
         Object.keys(this.detailRowOptions)
           .forEach(key => this.options[key] = this.detailRowOptions[key]); 
@@ -145,12 +161,16 @@
       // Clone data (for cancel button)
       this.revertData = JSON.parse(JSON.stringify(this.rowData));
       // Clone fields
-      this.fields = this.prepareFields();
+      this.$fields = this.prepareFields();
       // Assign event listeners
-      this.$events.$on('detail-row-field-value-changed', (data) => {
-        const field = this.fields.find(field => field.name === data.name);
-        field.value = data.value;
-        this.onInputChange(field);
+      this.$events.$on('detail-row-field-value-changed', (event) => {
+        const data = event.data;
+        const index = event.rowIndex;
+        if (index === this.rowIndex) {
+          const field = this.$fields.find(field => field.name === data.name);
+          field.value = data.value;
+          this.onInputChange(field);
+        }
       });
     }
   }
@@ -165,11 +185,6 @@
     .grid {
       margin: 0;
       margin-bottom: 0.5rem;
-    }
-
-    .row.field {
-      padding: 0.5rem 0;
-      margin-bottom: 0;
     }
 
     .fourteen.wide.column {
@@ -200,6 +215,24 @@
     /* Override default semantic ui behavior */
     .ui.selectable.table tbody tr.vuetable-detail-row:hover {
       background-color: unset !important;
+    }
+
+    .details-row-container > .ui.two.column.grid.form > .row.field {
+      padding: 0.5rem 0;
+      margin-bottom: 0;
+    }
+
+    .details-row-container .error input {
+      background-color: #fff6f6 !important;
+      border-color: #e0b4b4 !important;
+      color: #9f3a38 !important;
+      -webkit-box-shadow: none !important;
+      box-shadow: none !important;
+    }
+
+    .error-msg {
+      color: #9f3a38;
+      margin-top: 0.5rem;
     }
 
   </style>

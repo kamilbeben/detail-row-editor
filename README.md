@@ -35,13 +35,14 @@ Name | Type | Default value | Description
 autoRowUpdateAfterChange | boolean | `true` | If set to true, the parent row will be updated on every change
 autoRowUpdateAfterSave | boolean | `true` | If set to true, the parent row will be updated after save
 autoHideOnSaveOrCancel | boolean | `true` | If set to true, the details row will be automatically hidden after save / cancel
-onSave | function | `null` | Function which will be called on **save**. It takes data as an argument and it is required to return a `Promise` object. 
+onSave | function | `null` | Function which will be called on **save**. It takes data as an argument and it is required to return a `Promise` object. See example code for tips on error handling. 
 onCancel | function | `null` | Function which will be called on **cancel**. It is required to return a `Promise` object.
 header | Component | `null` | Header component
 footer | Component | `null` | Custom footer component
 showFooter | boolean | `true` | Whenever footer (buttons) should be hidden
 buttonClasses | String | `''` | Classes which will be added to save / cancel buttons (separated by space)
 boldLabel | boolean | `false` | Whenever field title should be bolded 
+fields | array | `[]` | Must be set in order for editor to work
 
 # Field properties
 Fields also should have certain properties specified in order to be editable.
@@ -50,7 +51,7 @@ Name | Type | Default value | Description
 --- | --- | --- | ---
 editable | boolean | `false` | **Important!** You must set this value to true in order for it to be editable
 type | String | `text` | Any valid HTML input type will do (note that no additional attributes will be added, so there is no point in specifying a radio type for example)
-customComponent | Component | `null` | Custom field component. See example for more detailed informations
+detailRowComponent | Component | `null` | Custom field component. See example for more detailed informations
 
 # Example code
 ``` bash
