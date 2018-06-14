@@ -23,14 +23,24 @@ import GenderPicker from './GenderPicker'
 
 Vue.component('detail-row', DetailRowEditor);
 
+const validate = (data) => {
+  if (Math.random(1) >= 0.5) return [];
+
+  return [{
+    fieldName: 'email',
+    msg: 'Invalid format'
+  }];
+};
+
 const onSave = (data) => {
-  return new Promise((resolve) =>  {
-      console.log('onSave.start', data);
-      // Do stuff using data. Unless autoHideOnSaveOrCancel is set to false, the details row will be hidden when this promise is resolved
-      setTimeout(() => {
-        console.log('onSave.end'); 
-        resolve(); 
-      }, 1000);
+  return new Promise((resolve, reject) =>  {
+      const errors = validate(data);
+      if (errors.length) {
+        reject(errors);
+      } else {
+        // post data to server, etc
+        resolve();
+      }
     });
 };
 
@@ -38,7 +48,8 @@ const onSave = (data) => {
 Vue.prototype.detailRowOptions = {
   buttonClasses: 'mini',
   onSave: onSave,
-  autoRowUpdateAfterChange: false
+  autoRowUpdateAfterChange: false,
+  fields: []
 };
 
 export default {
@@ -73,7 +84,7 @@ export default {
           key: 5,
           name: 'gender',
           title: 'Gender',
-          customComponent: Vue.component('gender-picker', GenderPicker), // Custom component. See GenderPicker.vue
+          detailRowComponent: Vue.component('gender-picker', GenderPicker), // Custom component. See GenderPicker.vue
           editable: true
         }]
     }
@@ -82,6 +93,12 @@ export default {
     onCellClicked (data, field, event) {
       this.$refs.vuetable.toggleDetailRow(data.id)
     }
+  },
+  mounted () {
+    Vue.prototype.detailRowOptions.fields = this.fields;
+    this.$events.$on('hide-detail-row', ($event) => {
+      this.$refs.vuetable.hideDetailRow($event.data.id)
+    });
   }
 }
 </script>
