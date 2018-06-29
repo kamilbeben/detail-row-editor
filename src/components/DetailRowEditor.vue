@@ -13,7 +13,7 @@
       </div>
     </div>
     <!-- footer -->
-    <div v-if="options.showFooter || !options.footer" class="footer-container">
+    <div v-if="options.showFooter && !options.footer" class="footer-container">
       <button @click="onSave" :class="[options.buttonClasses, options.saveButtonClass]" class="ui positive button">Save</button>
       <button @click="onCancel" :class="[options.buttonClasses, options.cancelButtonClass]" class="ui negative button">Cancel</button>
     </div>
